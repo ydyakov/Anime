@@ -1,0 +1,197 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<!-- Стилове за текстовете по екрана -->
+		<style>
+			body   {color: black; text-shadow: 0 0 1px gray; font-family: Calibri;}
+			h1     {position: fixed; z-index: 10; top: 0; left: 0; text-align: center; width: 100%;}
+			div    {position: fixed; z-index: 10; bottom: 1em; left: 1em; font-size: 1.5em; font-style: italic;}
+			button {width: 6em; font-size: 70%; border-radius: 1em;}
+		</style>
+
+		<!-- Нужни са за ползване на библиотеката, без инсталиране на nodes -->
+		<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.min.js",
+				"three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.min.js",
+				"three/tsl": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.tsl.min.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+				"disfigure": "https://boytchev.github.io/disfigure/dist/disfigure.min.js"
+			}
+		}
+		</script>
+	</head>
+	
+	<body>
+	
+		<!-- Сложете реално заглавие -->
+		<h1>Заглавие на сцената
+			<br>
+			<button id="start">Старт</button>
+		</h1>  
+		
+		<!-- Сложете описание на сцената (опитайте с рима) -->
+		<div>
+			Сложете тук един куплет,<br>
+			кажете в него де що става,<br>
+			a изборът ви на сюжет &ndash;<br>
+			без милост да ни грабва.
+		</div>
+
+		
+		<script type="module">
+			
+			// Зареждане на библиотеката
+			import * as THREE from 'three';
+			import * as Happy from 'disfigure';
+
+			// Създаване на сцена с интерактивност
+			new Happy.World({antialias:true});
+			
+			// Създаване на фигура
+            const people = [
+                { type: 'Man', height: 1.85, delay: 0.0 }, // инструктор
+                { type: 'Woman', height: 1.70, delay: 0.4 },
+                { type: 'Man', height: 1.75, delay: 0.8 },
+                { type: 'Child', height: 1.35, delay: 1.2 }
+            ];
+			
+			// Пускане на музиката и скриване на бутона
+			var music = new Audio();
+				music.src = 'Arktype_-_Hot_Pursuit.mp3';
+				
+			var button = document.getElementById('start');
+			
+			button.onclick = function ( )
+			{
+				music.play();
+				button.style.display = 'none';
+			}
+							
+			var figures = [];
+
+            people.forEach((p, i) => {
+                let fig;
+
+                if (p.type === 'Man') fig = new Happy.Man();
+                if (p.type === 'Woman') fig = new Happy.Woman();
+                if (p.type === 'Child') fig = new Happy.Child();
+
+                // мащаб според ръста
+                const scale = p.height / 1.75;
+                fig.scale.set(scale, scale, scale);
+
+                // позициониране
+                if (i === 0) {
+                    // инструктор в центъра
+                    fig.position.x = 0;
+                    fig.position.z = -1;
+                    fig.rotation.y = Math.PI; // гръб към камерата
+                } else {
+                    // останалите фигури срещу инструктора на различно разстояние
+                    const spacing = 1.5; // колко далеч са един от друг
+                    fig.position.x = (i - 1) * spacing - 2; // примерно -2, 0.5, 3 ...
+                    fig.position.z = -4;  // разстояние пред инструктора
+                    fig.rotation.y = Math.PI / 12; // леко завъртяни към инструктора
+                }
+
+                fig.l_ankle.tilt = -12;
+                fig.r_ankle.tilt = -12;
+
+                fig.delay = p.delay;
+
+                if (p.type === 'Man') {
+                    fig.dress([
+                        Happy.velour('LightSkyBlue'),
+
+                        Happy.slice(0.6, 1.1),
+                        Happy.velour('navy')
+                    ]);
+                }
+
+                if (p.type === 'Woman') {
+                    fig.dress([
+                        Happy.velour('Lavender'),
+
+                        // рокля
+                        Happy.slice(0.7, 1.4, { wave: 0.3, width: 0.15 }),
+                        Happy.velour('MediumPurple')
+                    ]);
+                }
+
+                if (p.type === 'Child') {
+                    fig.dress([
+                        Happy.velour('LightSkyBlue'),
+
+                        Happy.slice(0.6, 1.1),
+                        Happy.velour('navy')
+                    ]);
+                }
+
+                figures.push(fig);
+            });
+                
+            function moveFigure(figure, t) {
+                // бавно време
+                const slow = t * 0.6;
+
+                // основна плавност
+                const s1 = Math.sin(slow);
+                const s2 = Math.cos(slow);
+
+                // леко люлеене на тялото
+                figure.torso.tilt = 4 * s1;
+                figure.chest.turn = 10 * s2;
+
+                // глава – спокойна и центрирана
+                figure.head.tilt = 6 * s1;
+                figure.head.turn = 8 * s2;
+
+                // рамене – отваряне
+                figure.l_arm.straddle = 25 + 10 * s1;
+                figure.r_arm.straddle = 25 - 10 * s1;
+
+                // лакти – меки
+                figure.l_elbow.bend = 35 + 10 * s2;
+                figure.r_elbow.bend = 35 - 10 * s2;
+
+                // ✨ китки – кръгово движение (много тай чи!)
+                figure.l_wrist.turn = 25 * Math.sin(slow * 1.2);
+                figure.l_wrist.tilt = 25 * Math.cos(slow * 1.2);
+
+                figure.r_wrist.turn = -25 * Math.sin(slow * 1.2);
+                figure.r_wrist.tilt = 25 * Math.cos(slow * 1.2);
+
+                // леко пренасяне на тежестта
+                figure.l_leg.straddle = 18 + 4 * s1;
+                figure.r_leg.straddle = 18 - 4 * s1;
+
+                //figure.l_foot.lockTo(
+                //    figure.position.x,
+                //    figure.position.y,
+                //    figure.position.z,
+                //    0.6, 0.03, 0
+                //);
+            }
+
+
+
+            function animate() {
+                let baseTime = music.currentTime;
+
+                figures.forEach(fig => {
+                    let t = baseTime - fig.delay;
+                    if (t > 0) moveFigure(fig, t);
+                });
+            }
+
+
+            Happy.setAnimationLoop(animate);
+
+            
+						
+		</script>
+	</body>
+</html>

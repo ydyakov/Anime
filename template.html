@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+
+<html>
+	<head>
+		<!-- Стилове за текстовете по екрана -->
+		<style>
+			body {color: black; text-shadow: 0 0 1px gray; font-family: Calibri;}
+			h1   {position: fixed; z-index: 10; top: 0; left: 0; text-align: center; width: 100%;}
+			div  {position: fixed; z-index: 10; bottom: 1em; left: 1em; font-size: 1.5em; font-style: italic;}
+		</style>
+
+		<!-- Нужни са за ползване на библиотеката, без инсталиране на nodes -->
+		<script type="importmap">
+		{
+			"imports": {
+				"three": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.min.js",
+				"three/webgpu": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.webgpu.min.js",
+				"three/tsl": "https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.tsl.min.js",
+				"three/addons/": "https://cdn.jsdelivr.net/npm/three@0.180.0/examples/jsm/",
+				"disfigure": "https://boytchev.github.io/disfigure/dist/disfigure.min.js"
+				
+			}
+		}
+		</script>
+<!--				"disfigure": "https://cdn.jsdelivr.net/gh/boytchev/disfigure/dist/disfigure.min.js" -->
+	</head>
+
+	<body>
+	
+		<!-- Сложете реално заглавие -->
+		<h1>Заглавие на сцената</h1>  
+		
+		<!-- Сложете описание на сцената (с ритъм и рима) -->
+		<div>
+			Сложете тук един куплет,<br>
+			кажете в него де що става,<br>
+			a изборът ви на сюжет &ndash;<br>
+			без милост да ни грабва.
+		</div>
+		
+		<script type="module">
+
+			// Зареждане на библиотеката
+			import * as Happy from 'disfigure';
+
+			// Създаване на сцена с интерактивност
+			new Happy.World();
+			
+			// Създаване на фигура
+			var figure = new Happy.Man();
+				figure.l_ankle.tilt = -16;
+				figure.r_ankle.tilt = -16;
+
+				
+			Happy.setAnimationLoop( animate );
+	
+			function animate( t )
+			{
+				// В тази функция направете движението на фигурите.
+				// Параметърът t е времето в милисекунди, 1000 мс = 1 с
+				
+				t = t/500;
+				
+				// Следва примерно движение, за да не е празна функцията.
+				// То е циклично, но по-ценни са нецикличните движения.
+				// Не ползвайте това движение, а си направете ново,
+				// изцяло ваше движение.
+
+				var s = Math.sin( t );
+
+				// движение на главата
+				figure.head.turn = -45 * Math.sin( t+1 );
+				figure.head.tilt = 15 * Math.sin( t );
+				
+				// движение на средата на тялото (между кръста и гърдите)
+				figure.chest.turn = 20 * Math.cos( t );
+				figure.chest.tilt = -20 * Math.sin( t );
+
+				// движение на ръцете в раменете
+				figure.l_arm.straddle = 30 + 15 * s;
+				figure.r_arm.straddle = 30 - 15 * s;
+
+				// движение в лактите
+				figure.l_elbow.bend = 40 + 35 * s;
+				figure.r_elbow.bend = 40 - 35 * s;
+
+				// движение на цялото тяло
+				figure.torso.tilt = 5*s;
+
+				// движение на краката в таза
+				figure.l_leg.straddle = 20+6*s;
+				figure.r_leg.straddle = 20-6*s;
+
+				// закача точка от лявото ходило
+				// да е фиксирана в пространството
+				figure.l_foot.lockTo( 0, 0, 0, 0.5, 0.02, 0 )
+			}
+
+		</script>
+	</body>
+</html>
