@@ -134,47 +134,74 @@
             });
                 
             function moveFigure(figure, t) {
-                // бавно време
-                const slow = t * 0.6;
 
-                // основна плавност
+                const slow = t * 1.2;
                 const s1 = Math.sin(slow);
                 const s2 = Math.cos(slow);
 
-                // леко люлеене на тялото
-                figure.torso.tilt = 4 * s1;
-                figure.chest.turn = 10 * s2;
+                // кой сет сме
+                const phase = Math.floor(t / 6) % 2;
 
-                // глава – спокойна и центрирана
-                figure.head.tilt = 6 * s1;
-                figure.head.turn = 8 * s2;
+                // =========================
+                // SET A – БОКС / TAE BO
+                // =========================
+                if (phase === 0) {
 
-                // рамене – отваряне
-                figure.l_arm.straddle = 25 + 10 * s1;
-                figure.r_arm.straddle = 25 - 10 * s1;
+                    // стабилна стойка
+                    figure.torso.tilt = 3 * s1;
+                    figure.chest.turn = 12 * s2;
 
-                // лакти – меки
-                figure.l_elbow.bend = 35 + 10 * s2;
-                figure.r_elbow.bend = 35 - 10 * s2;
+                    // глава
+                    figure.head.turn = 5 * s2;
 
-                // ✨ китки – кръгово движение (много тай чи!)
-                figure.l_wrist.turn = 25 * Math.sin(slow * 1.2);
-                figure.l_wrist.tilt = 25 * Math.cos(slow * 1.2);
+                    // ръце – удари
+                    figure.l_arm.forward = 30 + 25 * s1;
+                    figure.r_arm.forward = 30 - 25 * s1;
 
-                figure.r_wrist.turn = -25 * Math.sin(slow * 1.2);
-                figure.r_wrist.tilt = 25 * Math.cos(slow * 1.2);
+                    figure.l_elbow.bend = 70;
+                    figure.r_elbow.bend = 70;
 
-                // леко пренасяне на тежестта
-                figure.l_leg.straddle = 18 + 4 * s1;
-                figure.r_leg.straddle = 18 - 4 * s1;
+                    // китки – стегнати
+                    figure.l_wrist.bend = -10;
+                    figure.r_wrist.bend = -10;
 
-                //figure.l_foot.lockTo(
-                //    figure.position.x,
-                //    figure.position.y,
-                //    figure.position.z,
-                //    0.6, 0.03, 0
-                //);
+                    // лека смяна на тежестта
+                    figure.l_leg.straddle = 16 + 4 * s1;
+                    figure.r_leg.straddle = 16 - 4 * s1;
+                }
+
+                // =========================
+                // SET B – РИТНИЦИ
+                // =========================
+                else {
+
+                    // подготовка за ритник
+                    figure.torso.turn = 10 * s1;
+                    figure.chest.turn = 15 * s1;
+
+                    // ръце за баланс
+                    figure.l_arm.straddle = 35;
+                    figure.r_arm.straddle = 35;
+
+                    figure.l_elbow.bend = 40;
+                    figure.r_elbow.bend = 40;
+
+                    // РИТНИК (редуване ляв / десен)
+                    const kick = Math.max(0, Math.sin(slow));
+
+                    figure.r_leg.forward = 40 * kick;
+                    figure.r_knee.bend = 50 * kick;
+                    figure.r_ankle.bend = -20 * kick;
+
+                    // опорен крак
+                    figure.l_leg.forward = -5;
+                    figure.l_knee.bend = 10;
+
+                    // баланс
+                    figure.torso.tilt = 5 * kick;
+                }
             }
+
 
 
 
